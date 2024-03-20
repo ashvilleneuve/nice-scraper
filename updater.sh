@@ -7,8 +7,8 @@ current_file=""
 while true
 do
     # Find the two most recent files
-    newest_file=$(ls -t /Users/ashleyshopify/Downloads/events*.ics | head -n 1)
-    second_newest_file=$(ls -t /Users/ashleyshopify/Downloads/events*.ics | head -n 2 | tail -n 1)
+    newest_file=$(ls -t ~/Downloads/events*.ics | head -n 1)
+    second_newest_file=$(ls -t ~/Downloads/events*.ics | head -n 2 | tail -n 1)
 
     # If there are two files and they are different from the last two files
     if [ -n "$newest_file" ] && [ -n "$second_newest_file" ] && [ "$newest_file" != "$current_file" ] && [ "$second_newest_file" != "$last_file" ]
