@@ -1,4 +1,4 @@
-This is a javascript bookmarklet and shell script that will (theoretically) let you pull Nice scheduling data into your Google calendar automatically. It's an ugly solution, but might be the best one we have for now. 
+This is a javascript bookmarklet and shell script that will (theoretically) let you pull Nice scheduling data into your Google calendar automatically. It's an ugly solution, but might be the only one we have for now. 
 
 To use it, you'll need to:
 
