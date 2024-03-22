@@ -1,4 +1,5 @@
-javascript: (function () {
+(function () {
+  // I'm only here so you can reference an unminified copy of the code. 
   function extractActivities() {
     let titleSpans = document.querySelectorAll('.activity-title.visually-hidden');
     let activities = [];
@@ -10,47 +11,44 @@ javascript: (function () {
       }
     });
 
-    let events = [];
+    return activities.map(parseActivity);
+}
+
+  function parseActivity(activity) {
+    console.log(activity);
+    let [text, times] = activity.split(' times');
+    let [date, day, ...titleParts] = text.split(' ');
+    let title = titleParts.join(' ').split('M ')[1];
+
+    let [startTime, endTime] = times.split(' - ');
+    let [startHour, startMinute] = parseTime(startTime);
+    let [endHour, endMinute] = parseTime(endTime);
+
     let year = new Date().getFullYear();
     let month = new Date().getMonth();
+    console.log(year, month, date, startHour, startMinute);
+    let startDate = new Date(year, month, date, startHour, startMinute);
+    let endDate = new Date(year, month, date, endHour, endMinute);
 
-    activities.forEach(activity => {
-      console.log(activity);
-      let text = activity.split(' times')[0];
-      let [date, day, ...titleParts] = text.split(' ');
-      let times = activity.split(' times')[1];
-      let title = titleParts.join(' ').split('M ')[1];
-
-      let startTime = times.split('(')[1].split(' - ')[0].replace('AM', '').replace('PM', '').trim();
-      let endTime = times.split(' - ')[1].split(')')[0].replace('AM', '').replace('PM', '').trim();
-      let startAmPm = times.split('(')[1].split(' - ')[0].includes('AM') ? 'AM' : 'PM';
-      let endAmPm = times.split(' - ')[1].split(')')[0].includes('AM') ? 'AM' : 'PM'
-      // Convert to 24 hour format
-      let [startHour, startMinute] = startTime.split(':');
-      let [endHour, endMinute] = endTime.split(':');
-      if (startAmPm === 'PM' && startHour !== '12') startHour = parseInt(startHour) + 12;
-      if (endAmPm === 'PM' && endHour !== '12') endHour = parseInt(endHour) + 12;
-      if (startAmPm === 'AM' && startHour === '12') startHour = '00';
-      if (endAmPm === 'AM' && endHour === '12') endHour = '00';
-      let startDate = new Date(year, month, date, startHour, startMinute);
-      let endDate = new Date(year, month, date, endHour, endMinute);
-
-      events.push({
-        'summary': title,
-        'start': {
-          'dateTime': startDate.toISOString(),
-          'timeZone': 'America/Los_Angeles'
-        },
-        'end': {
-          'dateTime': endDate.toISOString(),
-          'timeZone': 'America/Los_Angeles'
-        }
-      });
-    });
-
-    return events;
+    return {
+      'summary': title,
+      'start': {
+        'dateTime': startDate.toISOString(),
+        'timeZone': 'America/Los_Angeles'
+      },
+      'end': {
+        'dateTime': endDate.toISOString(),
+        'timeZone': 'America/Los_Angeles'
+      }
+    };
   }
 
+  function parseTime(time) {
+    let [hour, minute] = time.replace('AM', '').replace('PM', '').replace('(', '').replace(')', '').trim().split(':');
+    if (time.includes('PM') && hour !== '12') hour = parseInt(hour) + 12;
+    if (time.includes('AM') && hour === '12') hour = '00';
+    return [hour, minute];
+  }
 
   function convertToICS(events) {
     let now = new Date();
@@ -79,33 +77,36 @@ javascript: (function () {
       'END:VCALENDAR';
   }
 
-  let events = extractActivities();
-  let ics = convertToICS(events);
-  let blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-  let url = URL.createObjectURL(blob);
-  let link = document.createElement('a');
-  link.download = 'events.ics';
-  link.href = url;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
 
-  setInterval(() => {
-    events = extractActivities();
-    ics = convertToICS(events);
-    blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
-    url = URL.createObjectURL(blob);
-    link = document.createElement('a');
+  function downloadICS(ics) {
+    let blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement('a');
     link.download = 'events.ics';
     link.href = url;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-  }, 1200000); // Time in ms to wait before running again. Change this to check schedule more or less often! 
+  }
 
-  setInterval(() => {
+  function keepAlive() {
     let keepAliveLink = document.querySelector('.btn-refresh');
     keepAliveLink.click();
-  }, 60000); // This one should stay at 1 minute. It is a keep alive function to ensure Nice doesn't log you out.
+  }
 
+  try {
+    let events = extractActivities();
+    let ics = convertToICS(events);
+    downloadICS(ics);
+
+    setInterval(() => {
+      events = extractActivities();
+      ics = convertToICS(events);
+      downloadICS(ics);
+    }, 600000);
+
+    setInterval(keepAlive, 60000);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
 })();

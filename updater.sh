@@ -10,10 +10,16 @@ while true
       file_count=$(ls ~/Downloads/events*.ics | wc -l | tr -d ' ')
 
       if [[ $file_count -gt 2 ]] 
-      then
-      find ~/Downloads -name "events*.ics" -print0 | xargs -0 ls -t | tail -n +3 | tr '\n' '\0' | xargs -0 rm --
+        then
+        find ~/Downloads -name "events*.ics" -print0 | xargs -0 ls -t | tail -n +3 | tr '\n' '\0' | xargs -0 rm --
       fi
 
+      if [[ $file_count == 1 ]]
+        then 
+        echo "We have a new schedule, please import to calendar"
+        open "$newest_file"
+        cp "$newest_file" ~/Downloads/events1.ics
+      fi
 
       if [ -n "$newest_file" ] && [ -n "$second_newest_file" ] && [ "$newest_file" != "$current_file" ] && [ "$second_newest_file" != "$last_file" ]
       
