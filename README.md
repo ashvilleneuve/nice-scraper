@@ -14,7 +14,7 @@ Switch to the Nice schedule tab and click the new bookmark. This starts the scra
 
 Save the updater.sh file to your computer. It's best to tuck it away where it won't be accidentally deleted. 
 
-In terminal, `cd` to the same directory as the updater.sh file. Run `chmod u+x updater.sh`. Then run `updater.sh`. This will start the updater. If the scraper already added an ics file to your downloads folder, the Calendar app should open and ask you to import it. Click okay. 
+In terminal, `cd` to the same directory as the updater.sh file. Run `chmod u+x updater.sh`. Then run `./updater.sh`. This will start the updater. If the scraper already added an ics file to your downloads folder, the Calendar app should open and ask you to import it. Click okay. 
 
 If everything goes as expected, Calendar should sync all these new events to your Google calendar. Meanwhile, our two scripts should be checking for changes in the background, and, if there are any, asking you to import the updated .ics file. 
 
