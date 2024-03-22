@@ -2,7 +2,7 @@ This is a javascript bookmarklet and shell script that will (theoretically) let 
 
 To use it, you'll need to:
 
-1. Add your Google calendar account to the [mac Calendar app on your laptop](https://support.google.com/calendar/answer/99358?hl=en&co=GENIE.Platform%3DDesktop).
+1. Add your Google calendar account to the [mac Calendar app on your laptop](https://support.google.com/calendar/answer/99358?hl=en&co=GENIE.Platform%3DDesktop). (If you get a warning that the Calendar app is not approved, you will need to [login to your managed apple id](https://vault.shopify.io/page/Managed-Apple-ID-Setup~14471.md) first.)
 2. Set the refrsh interval to some automatic interval (not manual) and make your Google calendar the default.
 3. Pin the [Nice Employee Engagement schedule screen](https://portal.shopify-eem.nicecloudsvc.com/agent/dashboard) open in a browser tab.
 4. Be willing to keep a terminal instance running and minified.
