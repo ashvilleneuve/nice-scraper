@@ -6,7 +6,16 @@
     titleSpans.forEach(span => {
       let text = span.textContent.trim();
       if (!text.includes('No activity') && !text.includes('Blocked')) {
-        let times = span.nextSibling.nextSibling.nextSibling.textContent.trim();
+        let timesElement = span.nextSibling.nextSibling.nextSibling;
+        let times;
+        console.log(timesElement.nodeName)
+        if (timesElement.nodeName != 'span') {
+          times = `(${text.split(' ')[2]}:${text.split(' ')[3]} ${text.split(' ')[4]} - ${text.split(' ')[2]}:${(text.split(' ')[3] + 15)} ${text.split(' ')[4]})`
+        } else {
+          times = timesElement.textContent.trim();
+        }
+        console.log('a times',times)
+
         activities.push(text + ' times' + times);
       }
     });
@@ -16,17 +25,27 @@
 
   function parseActivity(activity) {
     console.log(activity);
+    let dateSpan = document.querySelector('eem-date-navigator #input-mask').textContent.split('| ')[1]
+    let openMonth = dateSpan.split(' – ')[0].split('-')[0];
+    let closeMonth = dateSpan.split(' – ')[1].split('-')[0];
+    let monthsEnd = openMonth != closeMonth;
     let [text, times] = activity.split(' times');
     let [date, day, ...titleParts] = text.split(' ');
     let title = titleParts.join(' ').split('M ')[1];
 
     let [startTime, endTime] = times.split(' - ');
+    console.log('starttime endtime', startTime, endTime);
+
     let [startHour, startMinute] = parseTime(startTime);
+    console.log('startHour, startMinute', startHour, startMinute);
     let [endHour, endMinute] = parseTime(endTime);
+    console.log('endHour, endMinute', endHour, endMinute);
 
     let year = new Date().getFullYear();
-    let month = new Date().getMonth();
-    console.log(year, month, date, startHour, startMinute);
+    let eMonth = monthsEnd && date < 7 ? closeMonth : openMonth;
+    let month = getMonthNumber(eMonth);
+    console.log('monthsEnd, eMonth, month', monthsEnd, eMonth, month)
+    console.log('year, month, date, startHour, startMinute', year, month, date, startHour, startMinute);
     let startDate = new Date(year, month, date, startHour, startMinute);
     let endDate = new Date(year, month, date, endHour, endMinute);
 
@@ -50,6 +69,11 @@
     return [hour, minute];
   }
 
+  function getMonthNumber(monthName) {
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    return monthNames.indexOf(monthName);
+  }
+
   function convertToICS(events) {
     let now = new Date();
     let day = now.getDay();
@@ -57,16 +81,20 @@
     let timestamp = new Date(now.setDate(diff));
 
     timestamp.setHours(0, 0, 0, 0);
-    console.log(timestamp.toISOString());
     let uid = 0;
     let icsEvents = events.map(event => {
-      uid = uid + 1;
+      let edate = new Date(event.start.dateTime);
+      let eday = edate.getUTCDate();
+      let eMonth = edate.getUTCMonth();
+      let eYear = edate.getFullYear();
+      uid = uid+eYear+eMonth+eday+1;
+      console.log(uid);
       return 'BEGIN:VEVENT\r\n' +
         'DTSTART:' + event.start.dateTime.replace(/[-:]|\.\d{3}/g, '') + '\r\n' +
         'DTEND:' + event.end.dateTime.replace(/[-:]|\.\d{3}/g, '') + '\r\n' +
         'SUMMARY:' + event.summary + '\r\n' +
         'DTSTAMP:' + timestamp.toISOString().replace(/[-:]|\.\d{3}/g, '') + '\r\n' +
-        'UID:' + 'nice' + uid + '\r\n' +
+        'UID:' + 'nicescraper' + uid + '\r\n' +
         'END:VEVENT';
     }).join('\r\n');
 
@@ -94,10 +122,30 @@
     keepAliveLink.click();
   }
 
+  function oktaWatch() {
+    const oktaTarget = document.getElementById('okta-plugin-message-channel-available');
+    const config = { attributes: true, childList: true, subtree: true };
+    const callback = (mutationList, observer) => {
+      for (const mutation of mutationList) {
+        if (mutation.type === "childList") {
+          console.log("A child node has been added or removed.");
+        } else if (mutation.type === "attributes") {
+          console.log(`The ${mutation.attributeName} attribute was modified.`);
+        }
+      }
+    };
+    
+    const observer = new MutationObserver(callback);
+    
+    observer.observe(oktaTarget, config);
+    
+  }
+
   try {
     let events = extractActivities();
     let ics = convertToICS(events);
     downloadICS(ics);
+    oktaWatch();
 
     setInterval(() => {
       events = extractActivities();
