@@ -1,3 +1,5 @@
+(Note: if your schedule doesn't change much, you can also just use this bookmarklet to download an ics file once a week and import it manually. Skip all the instructions after "click the new bookmark" and be sure to close the Nice tab once the file is downloaded.)
+
 This is a javascript bookmarklet and shell script that will (theoretically) let you pull Nice scheduling data into your Google calendar automatically. It's an ugly solution, but might be the only one we have for now. 
 
 To use it, you'll need to:
@@ -20,4 +22,3 @@ If everything goes as expected, Calendar should sync all these new events to you
 
 And voila! That was...hardly any trouble at all. 😅
 
-(Note: if your schedule doesn't change much, you can also just use the bookmarklet to download an ics file once a week and import it manually. Skip all the instructions after "click the new bookmark" and be sure to close the Nice tab once the file is downloaded.)
